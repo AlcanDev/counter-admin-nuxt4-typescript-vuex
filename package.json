@@ -1,13 +1,19 @@
 {
-  "name": "nuxt-app",
+  "name": "nuxt-counter-admin",
   "type": "module",
-  "private": true,
+  "private": false,
+  "version": "1.0.0",
+  "description": "Counter Admin Nuxt 4 + TypeScript + Vuex",
+  "author": "Alcandev",
   "scripts": {
-    "build": "nuxt build",
     "dev": "nuxt dev",
-    "generate": "nuxt generate",
-    "preview": "nuxt preview",
-    "postinstall": "nuxt prepare"
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "lint": "eslint . --ext .ts,.vue",
+    "format": "prettier --check .",
+    "typecheck": "vue-tsc --noEmit",
+    "test": "vitest run",
+    "qa": "node scripts/qa-smoke.mjs && npm run lint && npm run typecheck --if-present && npm run test --if-present && npm run build"
   },
   "dependencies": {
     "nuxt": "^4.0.3",
@@ -16,6 +22,15 @@
     "vuex": "^4.1.0"
   },
   "devDependencies": {
-    "sass": "^1.91.0"
+    "@types/node": "^24.3.0",
+    "@typescript-eslint/eslint-plugin": "^8.41.0",
+    "@typescript-eslint/parser": "^8.41.0",
+    "@vue/test-utils": "^2.4.6",
+    "eslint": "^9.34.0",
+    "eslint-plugin-vue": "^10.4.0",
+    "happy-dom": "^18.0.1",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
   }
 }

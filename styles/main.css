@@ -1,0 +1,219 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box
+}
+
+html,
+body,
+#__nuxt {
+    height: 100%
+}
+
+body {
+    margin: 0;
+    font: 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu;
+    color: var(--text);
+    background: radial-gradient(1200px 800px at 10% -10%, rgba(101, 163, 255, .08), transparent 50%) no-repeat, var(--bg);
+}
+
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: var(--s6)
+}
+
+.stack>*+* {
+    margin-top: var(--s6)
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s4)
+}
+
+.card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-1)
+}
+
+.section {
+    padding: var(--s6)
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    padding: .6rem 1rem;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform var(--t1), background var(--t1), border-color var(--t1), box-shadow var(--t1)
+}
+
+.btn:hover {
+    transform: translateY(-1px)
+}
+
+.btn:active {
+    transform: translateY(0)
+}
+
+.btn[disabled] {
+    opacity: .5;
+    cursor: not-allowed
+}
+
+.btn-primary {
+    background: linear-gradient(180deg, var(--brand), var(--brand-600));
+    color: #002031;
+    border-color: transparent;
+    box-shadow: 0 6px 20px rgba(53, 209, 251, .25)
+}
+
+.btn-ghost {
+    background: transparent
+}
+
+.field {
+    display: grid;
+    gap: .375rem
+}
+
+.input,
+.select {
+    width: 100%;
+    padding: .6rem .8rem;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    border-radius: 12px;
+    transition: border-color var(--t1), box-shadow var(--t1)
+}
+
+.input:focus,
+.select:focus {
+    outline: 0;
+    border-color: var(--ring);
+    box-shadow: 0 0 0 4px color-mix(in oklab, var(--ring) 30%, transparent)
+}
+
+.app-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--s6);
+    position: sticky;
+    top: 0;
+    background: linear-gradient(180deg, color-mix(in oklab, var(--bg-card) 90%, transparent), transparent);
+    backdrop-filter: saturate(140%) blur(4px);
+    z-index: 20;
+    border-bottom: 1px solid var(--border)
+}
+
+.app-title {
+    font-size: clamp(1.3rem, 2vw, 1.6rem);
+    font-weight: 700
+}
+
+.app-footer {
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(0deg, color-mix(in oklab, var(--bg-card) 90%, transparent), transparent);
+    backdrop-filter: saturate(140%) blur(4px);
+    z-index: 20;
+    border-top: 1px solid var(--border)
+}
+
+.grid {
+    --min: 260px;
+    display: grid;
+    gap: var(--s5);
+    grid-template-columns: repeat(auto-fill, minmax(var(--min), 1fr))
+}
+
+.counter {
+    padding: var(--s5);
+    display: grid;
+    gap: var(--s4);
+    transition: box-shadow var(--t2), transform var(--t2)
+}
+
+.counter:hover {
+    box-shadow: var(--shadow-2);
+    transform: translateY(-2px)
+}
+
+.counter .name {
+    font-weight: 700
+}
+
+.counter .value {
+    font-size: 2rem;
+    font-variant-numeric: tabular-nums
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: color-mix(in oklab, #000 60%, transparent);
+    display: grid;
+    place-items: center;
+    z-index: 50
+}
+
+.modal.card {
+    padding: var(--s6)
+}
+
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity var(--t2)
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0
+}
+
+.list-enter-active,
+.list-leave-active {
+    transition: all var(--t2)
+}
+
+.list-enter-from {
+    opacity: 0;
+    transform: translateY(6px)
+}
+
+.list-leave-to {
+    opacity: 0;
+    transform: translateY(-6px)
+}
+
+.modal-enter-active,
+.modal-leave-active {
+    transition: opacity var(--t2)
+}
+
+.modal-enter-from,
+.modal-leave-to {
+    opacity: 0
+}
+
+.modal-scale-enter-active,
+.modal-scale-leave-active {
+    transition: transform var(--t2), opacity var(--t2)
+}
+
+.modal-scale-enter-from,
+.modal-scale-leave-to {
+    opacity: 0;
+    transform: translateY(8px) scale(.98)
+}
