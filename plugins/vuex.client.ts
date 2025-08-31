@@ -1,5 +1,5 @@
-import { createStore, Store } from 'vuex';
 import { defineNuxtPlugin } from 'nuxt/app';
+import * as Vuex from 'vuex';
 import type { RootState, Prefs } from '../types/counter';
 
 const MAX_COUNTERS = 20;
@@ -14,14 +14,27 @@ const defaultPrefs: Prefs = {
   search: '',
 };
 
+// Global store instance
+let globalStore: any = null;
+
 export default defineNuxtPlugin({
   name: 'vuex-store',
   setup(nuxtApp) {
-    const store = createStore<RootState>({
-      state: (): RootState => ({ counters: [], prefs: defaultPrefs }),
+    // Return existing store if already created
+    if (globalStore) {
+      nuxtApp.vueApp.use(globalStore);
+      return {
+        provide: {
+          vuexStore: globalStore,
+        },
+      };
+    }
+
+    const store = Vuex.createStore<RootState>({
+      state: () => ({ counters: [], prefs: defaultPrefs }),
       getters: {
-        totalSum: (s) => s.counters.reduce((a, c) => a + c.value, 0),
-        viewList: (s) => {
+        totalSum: (s: RootState) => s.counters.reduce((a, c) => a + c.value, 0),
+        viewList: (s: RootState) => {
           const { sortBy, sortDir, filterMode, filterX, search } = s.prefs;
           let arr = [...s.counters];
 
@@ -44,36 +57,36 @@ export default defineNuxtPlugin({
 
           return arr;
         },
-        canAdd: (s) => s.counters.length < MAX_COUNTERS,
+        canAdd: (s: RootState) => s.counters.length < MAX_COUNTERS,
       },
       mutations: {
-        HYDRATE(state, payload: Partial<RootState>) {
+        HYDRATE(state: RootState, payload: Partial<RootState>) {
           if (payload.counters) state.counters = payload.counters;
           if (payload.prefs) state.prefs = { ...state.prefs, ...payload.prefs };
         },
-        SET_PREFS(state, prefs: Partial<Prefs>) {
+        SET_PREFS(state: RootState, prefs: Partial<Prefs>) {
           state.prefs = { ...state.prefs, ...prefs };
         },
-        ADD_COUNTER(state, name: string) {
+        ADD_COUNTER(state: RootState, name: string) {
           const clean = name.trim();
           if (!clean || clean.length > 20) return;
           if (state.counters.length >= MAX_COUNTERS) return;
           state.counters.push({ id: crypto.randomUUID(), name: clean, value: 0 });
         },
-        REMOVE_COUNTER(state, id: string) {
+        REMOVE_COUNTER(state: RootState, id: string) {
           state.counters = state.counters.filter((c) => c.id !== id);
         },
-        INCREMENT(state, id: string) {
+        INCREMENT(state: RootState, id: string) {
           const c = state.counters.find((c) => c.id === id);
           if (!c) return;
           c.value = Math.min(MAX_VALUE, c.value + 1);
         },
-        DECREMENT(state, id: string) {
+        DECREMENT(state: RootState, id: string) {
           const c = state.counters.find((c) => c.id === id);
           if (!c) return;
           c.value = Math.max(MIN_VALUE, c.value - 1);
         },
-        RENAME(state, payload: { id: string; name: string }) {
+        RENAME(state: RootState, payload: { id: string; name: string }) {
           const c = state.counters.find((c) => c.id === payload.id);
           if (!c) return;
           const clean = payload.name.trim();
@@ -82,23 +95,39 @@ export default defineNuxtPlugin({
         },
       },
       actions: {
-        setSort({ commit }, p: { by: 'name' | 'value'; dir: 'asc' | 'desc' }) {
+        setSort({ commit }: { commit: any }, p: { by: 'name' | 'value'; dir: 'asc' | 'desc' }) {
           commit('SET_PREFS', { sortBy: p.by, sortDir: p.dir });
         },
-        setFilter({ commit }, p: { mode: 'gt' | 'lt' | 'none'; x?: number }) {
-          commit('SET_PREFS', { filterMode: p.mode, filterX: p.mode === 'none' ? null : (p.x ?? 0) });
+        setFilter({ commit }: { commit: any }, p: { mode: 'gt' | 'lt' | 'none'; x?: number }) {
+          commit('SET_PREFS', {
+            filterMode: p.mode,
+            filterX: p.mode === 'none' ? null : (p.x ?? 0),
+          });
         },
-        clearFilters({ commit }) {
+        clearFilters({ commit }: { commit: any }) {
           commit('SET_PREFS', { filterMode: 'none', filterX: null, search: '' });
         },
-        setSearch({ commit }, q: string) {
+        setSearch({ commit }: { commit: any }, q: string) {
           commit('SET_PREFS', { search: q });
         },
       },
       strict: process.env.NODE_ENV !== 'production',
     });
 
-    nuxtApp.vueApp.use(store as unknown as Store<RootState>);
+    // Store globally
+    globalStore = store;
+
+    // Install store in Vue app
+    nuxtApp.vueApp.use(store);
+
+    // Provide store to nuxtApp context
     nuxtApp.provide('store', store);
-  }
+    nuxtApp.provide('$store', store);
+
+    return {
+      provide: {
+        vuexStore: store,
+      },
+    };
+  },
 });

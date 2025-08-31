@@ -14,25 +14,50 @@ function onConfirm() {
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div class="modal-overlay" @click.self="$emit('cancel')">
+      <div
+        class="modal-overlay"
+        @click.self="$emit('cancel')"
+      >
         <Transition name="modal-scale">
-          <div class="modal card" role="dialog" aria-modal="true" aria-labelledby="add-title">
+          <div
+            class="modal card"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="add-title"
+          >
             <div class="stack">
-              <h2 id="add-title" style="margin: 0">Nuevo contador</h2>
+              <h2
+                id="add-title"
+                style="margin: 0"
+              >
+                Nuevo contador
+              </h2>
               <div class="field">
                 <label for="add-name">Nombre (1..20)</label>
                 <input
                   id="add-name"
-                  class="input"
                   v-model="name"
+                  class="input"
                   maxlength="20"
                   placeholder="Ej: Ventas Q3"
                   autofocus
-                />
+                >
               </div>
-              <div class="row" style="justify-content: flex-end; gap: 0.5rem">
-                <button class="btn" @click="$emit('cancel')">Cancelar</button>
-                <button class="btn btn-primary" :disabled="!valid" @click="onConfirm">
+              <div
+                class="row"
+                style="justify-content: flex-end; gap: 0.5rem"
+              >
+                <button
+                  class="btn"
+                  @click="$emit('cancel')"
+                >
+                  Cancelar
+                </button>
+                <button
+                  class="btn btn-primary"
+                  :disabled="!valid"
+                  @click="onConfirm"
+                >
                   Confirmar
                 </button>
               </div>

@@ -2,7 +2,7 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  ssr: true,
+  ssr: false, // Disable SSR to avoid hydration mismatches
   typescript: { strict: true },
   css: ['./styles/tokens.css', './styles/main.css'],
   vite: { define: { __VUE_PROD_DEVTOOLS__: false } },

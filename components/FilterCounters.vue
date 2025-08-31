@@ -20,31 +20,63 @@ function clearAll() {
 </script>
 
 <template>
-  <div class="card section row" style="align-items: end">
-    <div class="field" style="min-width: 180px">
+  <div
+    class="card section row"
+    style="align-items: end"
+  >
+    <div
+      class="field"
+      style="min-width: 180px"
+    >
       <label>Filtro</label>
-      <div class="row" style="gap: 0.5rem">
-        <select class="select" v-model="mode" @change="apply()">
-          <option value="none">Sin filtro</option>
-          <option value="gt">Mayor a</option>
-          <option value="lt">Menor a</option>
+      <div
+        class="row"
+        style="gap: 0.5rem"
+      >
+        <select
+          v-model="mode"
+          class="select"
+          @change="apply()"
+        >
+          <option value="none">
+            Sin filtro
+          </option>
+          <option value="gt">
+            Mayor a
+          </option>
+          <option value="lt">
+            Menor a
+          </option>
         </select>
         <input
+          v-model.number="x"
           class="input"
           type="number"
           min="0"
           max="20"
           placeholder="x"
-          v-model.number="x"
-          @input="apply()"
           :disabled="mode === 'none'"
-        />
+          @input="apply()"
+        >
       </div>
     </div>
-    <div class="field" style="flex: 1">
+    <div
+      class="field"
+      style="flex: 1"
+    >
       <label>Buscar por nombre</label>
-      <input class="input" v-model="q" placeholder="Ej: Ventas 2025" @input="emit('search', q)" />
+      <input
+        v-model="q"
+        class="input"
+        placeholder="Ej: Ventas 2025"
+        @input="emit('search', q)"
+      >
     </div>
-    <button class="btn" @click="clearAll">Borrar filtros</button>
+    <button
+      class="btn"
+      @click="clearAll"
+    >
+      Borrar filtros
+    </button>
   </div>
 </template>

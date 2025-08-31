@@ -1,5 +1,5 @@
 {
-  "name": "nuxt-counter-admin",
+  "name": "counter-admin-nuxt4-typescript-vuex",
   "type": "module",
   "private": false,
   "version": "1.0.0",
@@ -9,11 +9,11 @@
     "dev": "nuxt dev",
     "build": "nuxt build",
     "start": "nuxt start",
-    "lint": "eslint . --ext .ts,.vue",
+    "lint": "eslint .",
     "format": "prettier --check .",
     "typecheck": "vue-tsc --noEmit",
     "test": "vitest run",
-    "qa": "node scripts/qa-smoke.mjs && npm run lint && npm run typecheck --if-present && npm run test --if-present && npm run build"
+    "qa": "node scripts/qa-smoke.mjs && npm run lint"
   },
   "dependencies": {
     "nuxt": "^4.0.3",

@@ -11,20 +11,40 @@ function handleSortByChange(event: Event) {
 </script>
 
 <template>
-  <div class="card section row" style="justify-content: space-between; align-items: center">
-    <div class="field" style="min-width: 200px">
+  <div
+    class="card section row"
+    style="justify-content: space-between; align-items: center"
+  >
+    <div
+      class="field"
+      style="min-width: 200px"
+    >
       <label>Ordenar por</label>
       <select
         class="select"
         @change="handleSortByChange"
       >
-        <option value="name">Nombre</option>
-        <option value="value">Valor</option>
+        <option value="name">
+          Nombre
+        </option>
+        <option value="value">
+          Valor
+        </option>
       </select>
     </div>
     <div class="row">
-      <button class="btn" @click="emit('change:sortDir', 'asc')">Asc</button>
-      <button class="btn" @click="emit('change:sortDir', 'desc')">Desc</button>
+      <button
+        class="btn"
+        @click="emit('change:sortDir', 'asc')"
+      >
+        Asc
+      </button>
+      <button
+        class="btn"
+        @click="emit('change:sortDir', 'desc')"
+      >
+        Desc
+      </button>
     </div>
   </div>
 </template>

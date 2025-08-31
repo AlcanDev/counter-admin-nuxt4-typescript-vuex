@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onBeforeUnmount } from 'vue';
-import { useNuxtApp } from 'nuxt/app';
-import type { StoreType } from '../types/counter';
+import { useStore } from '../composables/useStore';
 
-const store = useNuxtApp().$store as StoreType;
+const store = useStore();
 
 const view = computed(() => store.getters.viewList);
 const total = computed(() => store.getters.totalSum);
@@ -80,7 +79,7 @@ function importJson() {
   fileInput.value!.click();
 }
 
-// EXTRA — Atajo “n” abre modal (si se puede agregar y no estás escribiendo en un input)
+// EXTRA — Atajo “n” abre modal
 function onKey(e: KeyboardEvent) {
   const target = e.target as HTMLElement;
   const typing =
@@ -99,15 +98,18 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
   <NuxtLayout>
     <template #header>
       <Header
-        @open-modal="showModal = true"
         :disabled-create="!canAdd"
+        @open-modal="showModal = true"
         @export="exportJson"
         @import="importJson"
       />
     </template>
 
     <div class="stack">
-      <div class="row" style="gap: var(--s6); align-items: flex-start; flex-wrap: wrap">
+      <div
+        class="row"
+        style="gap: var(--s6); align-items: flex-start; flex-wrap: wrap"
+      >
         <SortCounters
           @change:sortBy="(v) => store.dispatch('setSort', { by: v, dir: prefs.sortDir })"
           @change:sortDir="(v) => store.dispatch('setSort', { by: prefs.sortBy, dir: v })"
@@ -119,9 +121,19 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
         />
       </div>
 
-      <div v-if="view.length === 0" class="card section" style="text-align: center">
-        <p style="margin: 0 0 0.5rem">No hay contadores aún.</p>
-        <button class="btn btn-primary" @click="showModal = true" :disabled="!canAdd">
+      <div
+        v-if="view.length === 0"
+        class="card section"
+        style="text-align: center"
+      >
+        <p style="margin: 0 0 0.5rem">
+          No hay contadores aún.
+        </p>
+        <button
+          class="btn btn-primary"
+          :disabled="!canAdd"
+          @click="showModal = true"
+        >
           Crear tu primer contador
         </button>
       </div>
@@ -140,6 +152,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
       <CounterSum :total="total" />
     </template>
 
-    <AddCounterModal v-if="showModal" @confirm="onConfirmAdd" @cancel="showModal = false" />
+    <AddCounterModal
+      v-if="showModal"
+      @confirm="onConfirmAdd"
+      @cancel="showModal = false"
+    />
   </NuxtLayout>
 </template>

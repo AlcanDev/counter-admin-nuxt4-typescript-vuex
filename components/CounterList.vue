@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import Counter from './Counter.vue';
 defineProps<{ items: Array<{ id: string; name: string; value: number }> }>();
 const emit = defineEmits<{
   (e: 'inc', id: string): void;
@@ -10,15 +9,19 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <TransitionGroup name="list" tag="div" class="grid">
+  <TransitionGroup
+    name="list"
+    tag="div"
+    class="grid"
+  >
     <Counter
       v-for="c in items"
-      :key="c.id"
       :id="c.id"
+      :key="c.id"
       :name="c.name"
       :value="c.value"
-      :canInc="c.value < 20"
-      :canDec="c.value > 0"
+      :can-inc="c.value < 20"
+      :can-dec="c.value > 0"
       @inc="(id) => emit('inc', id)"
       @dec="(id) => emit('dec', id)"
       @remove="(id) => emit('remove', id)"

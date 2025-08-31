@@ -37,44 +37,69 @@ function save() {
 
 <template>
   <article class="card counter">
-    <header class="row" style="justify-content: space-between; align-items: center">
+    <header
+      class="row"
+      style="justify-content: space-between; align-items: center"
+    >
       <div class="name">
-        <template v-if="!editing">{{ name }}</template>
+        <template v-if="!editing">
+          {{ name }}
+        </template>
         <template v-else>
           <input
             :id="'edit-' + id"
-            class="input"
             v-model="draft"
+            class="input"
+            maxlength="20"
             @keydown.enter.prevent="save"
             @keydown.esc.prevent="cancel"
-            maxlength="20"
-          />
+          >
         </template>
       </div>
-      <div class="row" style="gap: 0.4rem">
-        <button class="btn" @click="editing ? save() : startEdit()">
+      <div
+        class="row"
+        style="gap: 0.4rem"
+      >
+        <button
+          class="btn"
+          @click="editing ? save() : startEdit()"
+        >
           {{ editing ? 'Guardar' : 'Renombrar' }}
         </button>
         <button
           class="btn"
           title="Eliminar"
-          @click="$emit('remove', id)"
           style="
             border-color: transparent;
             background: linear-gradient(180deg, var(--danger), #ff5c75);
             color: #21040a;
           "
+          @click="$emit('remove', id)"
         >
           Eliminar
         </button>
       </div>
     </header>
 
-    <div class="value">{{ value }}</div>
+    <div class="value">
+      {{ value }}
+    </div>
 
     <div class="row">
-      <button class="btn btn-primary" :disabled="!canInc" @click="$emit('inc', id)">+1</button>
-      <button class="btn" :disabled="!canDec" @click="$emit('dec', id)">-1</button>
+      <button
+        class="btn btn-primary"
+        :disabled="!canInc"
+        @click="$emit('inc', id)"
+      >
+        +1
+      </button>
+      <button
+        class="btn"
+        :disabled="!canDec"
+        @click="$emit('dec', id)"
+      >
+        -1
+      </button>
     </div>
   </article>
 </template>
