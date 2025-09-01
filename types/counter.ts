@@ -11,11 +11,12 @@ export type SortDir = 'asc' | 'desc';
 export type FilterMode = 'gt' | 'lt' | 'none';
 
 export interface Prefs {
-  sortBy: SortBy;
-  sortDir: SortDir;
-  filterMode: FilterMode;
+  sortBy: 'name' | 'value';
+  sortDir: 'asc' | 'desc';
+  filterMode: 'gt' | 'lt' | 'none';
   filterX: number | null;
   search: string;
+  sortingEnabled: boolean;
 }
 
 export interface RootState {
@@ -32,7 +33,9 @@ export interface RootGetters {
 export interface StoreType {
   state: RootState;
   getters: RootGetters;
-  commit: (type: string, payload?: any) => void;
-  dispatch: (type: string, payload?: any) => Promise<any>;
-  subscribe: (callback: (mutation: any, state: RootState) => void) => () => void;
+  commit(_type: string, _payload?: unknown): void;
+  dispatch(_type: string, _payload?: unknown): Promise<unknown>;
+  subscribe(
+    _callback: (_mutation: { type: string; payload: unknown }, _state: RootState) => void
+  ): () => void;
 }

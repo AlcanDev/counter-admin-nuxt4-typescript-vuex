@@ -12,10 +12,11 @@ const defaultPrefs: Prefs = {
   filterMode: 'none',
   filterX: null,
   search: '',
+  sortingEnabled: false,
 };
 
 // Global store instance
-let globalStore: any = null;
+let globalStore: Vuex.Store<RootState> | null = null;
 
 export default defineNuxtPlugin({
   name: 'vuex-store',
@@ -35,7 +36,7 @@ export default defineNuxtPlugin({
       getters: {
         totalSum: (s: RootState) => s.counters.reduce((a, c) => a + c.value, 0),
         viewList: (s: RootState) => {
-          const { sortBy, sortDir, filterMode, filterX, search } = s.prefs;
+          const { sortBy, sortDir, filterMode, filterX, search, sortingEnabled } = s.prefs;
           let arr = [...s.counters];
 
           if (search.trim()) {
@@ -47,13 +48,16 @@ export default defineNuxtPlugin({
             arr = arr.filter((c) => (filterMode === 'gt' ? c.value > filterX : c.value < filterX));
           }
 
-          arr.sort((a, b) => {
-            const cmp =
-              sortBy === 'name'
-                ? a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
-                : a.value - b.value;
-            return sortDir === 'asc' ? cmp : -cmp;
-          });
+          // Only sort if sorting is explicitly enabled
+          if (sortingEnabled) {
+            arr.sort((a, b) => {
+              const cmp =
+                sortBy === 'name'
+                  ? a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })
+                  : a.value - b.value;
+              return sortDir === 'asc' ? cmp : -cmp;
+            });
+          }
 
           return arr;
         },
@@ -95,19 +99,22 @@ export default defineNuxtPlugin({
         },
       },
       actions: {
-        setSort({ commit }: { commit: any }, p: { by: 'name' | 'value'; dir: 'asc' | 'desc' }) {
-          commit('SET_PREFS', { sortBy: p.by, sortDir: p.dir });
+        setSort({ commit }: Vuex.ActionContext<RootState, RootState>, p: { by: 'name' | 'value'; dir: 'asc' | 'desc' }) {
+          commit('SET_PREFS', { sortBy: p.by, sortDir: p.dir, sortingEnabled: true });
         },
-        setFilter({ commit }: { commit: any }, p: { mode: 'gt' | 'lt' | 'none'; x?: number }) {
+        setFilter({ commit }: Vuex.ActionContext<RootState, RootState>, p: { mode: 'gt' | 'lt' | 'none'; x?: number }) {
           commit('SET_PREFS', {
             filterMode: p.mode,
             filterX: p.mode === 'none' ? null : (p.x ?? 0),
           });
         },
-        clearFilters({ commit }: { commit: any }) {
+        clearFilters({ commit }: Vuex.ActionContext<RootState, RootState>) {
           commit('SET_PREFS', { filterMode: 'none', filterX: null, search: '' });
         },
-        setSearch({ commit }: { commit: any }, q: string) {
+        disableSorting({ commit }: Vuex.ActionContext<RootState, RootState>) {
+          commit('SET_PREFS', { sortingEnabled: false });
+        },
+        setSearch({ commit }: Vuex.ActionContext<RootState, RootState>, q: string) {
           commit('SET_PREFS', { search: q });
         },
       },

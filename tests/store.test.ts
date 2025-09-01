@@ -81,19 +81,25 @@ function createTestStore() {
       },
     },
     actions: {
-      setSort({ commit }: { commit: any }, p: { by: 'name' | 'value'; dir: 'asc' | 'desc' }) {
+      setSort(
+        { commit }: Vuex.ActionContext<RootState, RootState>,
+        p: { by: 'name' | 'value'; dir: 'asc' | 'desc' }
+      ) {
         commit('SET_PREFS', { sortBy: p.by, sortDir: p.dir });
       },
-      setFilter({ commit }: { commit: any }, p: { mode: 'gt' | 'lt' | 'none'; x?: number }) {
+      setFilter(
+        { commit }: Vuex.ActionContext<RootState, RootState>,
+        p: { mode: 'gt' | 'lt' | 'none'; x?: number }
+      ) {
         commit('SET_PREFS', {
           filterMode: p.mode,
           filterX: p.mode === 'none' ? null : (p.x ?? 0),
         });
       },
-      clearFilters({ commit }: { commit: any }) {
+      clearFilters({ commit }: Vuex.ActionContext<RootState, RootState>) {
         commit('SET_PREFS', { filterMode: 'none', filterX: null, search: '' });
       },
-      setSearch({ commit }: { commit: any }, q: string) {
+      setSearch({ commit }: Vuex.ActionContext<RootState, RootState>, q: string) {
         commit('SET_PREFS', { search: q });
       },
     },
@@ -102,7 +108,7 @@ function createTestStore() {
 }
 
 describe('Vuex Store', () => {
-  let store: any;
+  let store: Vuex.Store<RootState>;
 
   beforeEach(() => {
     store = createTestStore();
@@ -129,30 +135,30 @@ describe('Vuex Store', () => {
   describe('ADD_COUNTER mutation', () => {
     it('should add a valid counter', () => {
       store.commit('ADD_COUNTER', 'Test Counter');
-      
-      expect(store.state.counters).toHaveLength(1);
-      expect(store.state.counters[0].name).toBe('Test Counter');
-      expect(store.state.counters[0].value).toBe(0);
-      expect(store.state.counters[0].id).toBeDefined();
+
+      expect(store?.state?.counters).toHaveLength(1);
+      expect(store?.state?.counters?.[0]?.name).toBe('Test Counter');
+      expect(store?.state?.counters?.[0]?.value).toBe(0);
+      expect(store?.state?.counters?.[0]?.id).toBeDefined();
     });
 
     it('should trim whitespace from counter name', () => {
       store.commit('ADD_COUNTER', '  Trimmed Name  ');
-      
-      expect(store.state.counters[0].name).toBe('Trimmed Name');
+
+      expect(store?.state?.counters?.[0]?.name).toBe('Trimmed Name');
     });
 
     it('should reject empty names', () => {
       store.commit('ADD_COUNTER', '');
       store.commit('ADD_COUNTER', '   ');
-      
-      expect(store.state.counters).toHaveLength(0);
+
+      expect(store?.state?.counters).toHaveLength(0);
     });
 
     it('should reject names longer than 20 characters', () => {
       store.commit('ADD_COUNTER', 'This name is way too long for the counter limit');
-      
-      expect(store.state.counters).toHaveLength(0);
+
+      expect(store?.state?.counters).toHaveLength(0);
     });
 
     it('should respect maximum counter limit', () => {
@@ -160,14 +166,14 @@ describe('Vuex Store', () => {
       for (let i = 1; i <= 20; i++) {
         store.commit('ADD_COUNTER', `Counter ${i}`);
       }
-      
-      expect(store.state.counters).toHaveLength(20);
-      expect(store.getters.canAdd).toBe(false);
-      
+
+      expect(store?.state?.counters).toHaveLength(20);
+      expect(store?.getters?.canAdd).toBe(false);
+
       // Try to add 21st counter
       store.commit('ADD_COUNTER', 'Should not be added');
-      
-      expect(store.state.counters).toHaveLength(20);
+
+      expect(store?.state?.counters).toHaveLength(20);
     });
   });
 
@@ -177,47 +183,47 @@ describe('Vuex Store', () => {
     });
 
     it('should increment counter value', () => {
-      const id = store.state.counters[0].id;
+      const id = store?.state?.counters?.[0]?.id;
       store.commit('INCREMENT', id);
-      
-      expect(store.state.counters[0].value).toBe(1);
+
+      expect(store?.state?.counters?.[0]?.value).toBe(1);
     });
 
     it('should decrement counter value', () => {
-      const id = store.state.counters[0].id;
+      const id = store?.state?.counters?.[0]?.id;
       store.commit('INCREMENT', id);
       store.commit('DECREMENT', id);
-      
-      expect(store.state.counters[0].value).toBe(0);
+
+      expect(store?.state?.counters?.[0]?.value).toBe(0);
     });
 
     it('should not increment beyond MAX_VALUE (20)', () => {
-      const id = store.state.counters[0].id;
-      
+      const id = store?.state?.counters?.[0]?.id;
+
       // Set to max value
       for (let i = 0; i < 25; i++) {
         store.commit('INCREMENT', id);
       }
-      
-      expect(store.state.counters[0].value).toBe(MAX_VALUE);
+
+      expect(store?.state?.counters?.[0]?.value).toBe(MAX_VALUE);
     });
 
     it('should not decrement below MIN_VALUE (0)', () => {
-      const id = store.state.counters[0].id;
-      
+      const id = store?.state?.counters?.[0]?.id;
+
       // Try to decrement below 0
       for (let i = 0; i < 5; i++) {
         store.commit('DECREMENT', id);
       }
-      
-      expect(store.state.counters[0].value).toBe(MIN_VALUE);
+
+      expect(store?.state?.counters?.[0]?.value).toBe(MIN_VALUE);
     });
 
     it('should ignore invalid counter IDs', () => {
       store.commit('INCREMENT', 'invalid-id');
       store.commit('DECREMENT', 'invalid-id');
-      
-      expect(store.state.counters[0].value).toBe(0);
+
+      expect(store?.state?.counters?.[0]?.value).toBe(0);
     });
   });
 
@@ -227,44 +233,44 @@ describe('Vuex Store', () => {
     });
 
     it('should rename counter with valid name', () => {
-      const id = store.state.counters[0].id;
+      const id = store?.state?.counters?.[0]?.id;
       store.commit('RENAME', { id, name: 'New Name' });
-      
-      expect(store.state.counters[0].name).toBe('New Name');
+
+      expect(store?.state?.counters?.[0]?.name).toBe('New Name');
     });
 
     it('should trim whitespace when renaming', () => {
-      const id = store.state.counters[0].id;
+      const id = store?.state?.counters?.[0]?.id;
       store.commit('RENAME', { id, name: '  Trimmed New Name  ' });
-      
-      expect(store.state.counters[0].name).toBe('Trimmed New Name');
+
+      expect(store?.state?.counters?.[0]?.name).toBe('Trimmed New Name');
     });
 
     it('should reject empty names when renaming', () => {
-      const id = store.state.counters[0].id;
-      const originalName = store.state.counters[0].name;
-      
+      const id = store?.state?.counters?.[0]?.id;
+      const originalName = store?.state?.counters?.[0]?.name;
+
       store.commit('RENAME', { id, name: '' });
       store.commit('RENAME', { id, name: '   ' });
-      
-      expect(store.state.counters[0].name).toBe(originalName);
+
+      expect(store?.state?.counters?.[0]?.name).toBe(originalName);
     });
 
     it('should reject names longer than 20 characters when renaming', () => {
-      const id = store.state.counters[0].id;
-      const originalName = store.state.counters[0].name;
-      
+      const id = store?.state?.counters?.[0]?.id;
+      const originalName = store?.state?.counters?.[0]?.name;
+
       store.commit('RENAME', { id, name: 'This name is way too long for the counter limit' });
-      
-      expect(store.state.counters[0].name).toBe(originalName);
+
+      expect(store?.state?.counters?.[0]?.name).toBe(originalName);
     });
 
     it('should ignore invalid counter IDs when renaming', () => {
-      const originalName = store.state.counters[0].name;
-      
+      const originalName = store?.state?.counters?.[0]?.name;
+
       store.commit('RENAME', { id: 'invalid-id', name: 'New Name' });
-      
-      expect(store.state.counters[0].name).toBe(originalName);
+
+      expect(store?.state?.counters?.[0]?.name).toBe(originalName);
     });
   });
 
@@ -275,28 +281,26 @@ describe('Vuex Store', () => {
     });
 
     it('should remove counter by ID', () => {
-      const id = store.state.counters[0].id;
+      const id = store?.state?.counters?.[0]?.id;
       store.commit('REMOVE_COUNTER', id);
-      
-      expect(store.state.counters).toHaveLength(1);
-      expect(store.state.counters[0].name).toBe('Counter 2');
+
+      expect(store?.state?.counters).toHaveLength(1);
+      expect(store?.state?.counters?.[0]?.name).toBe('Counter 2');
     });
 
     it('should ignore invalid counter IDs', () => {
       store.commit('REMOVE_COUNTER', 'invalid-id');
-      
+
       expect(store.state.counters).toHaveLength(2);
     });
   });
 
   describe('HYDRATE mutation', () => {
     it('should hydrate counters', () => {
-      const counters: Counter[] = [
-        { id: '1', name: 'Hydrated Counter', value: 5 }
-      ];
-      
+      const counters: Counter[] = [{ id: '1', name: 'Hydrated Counter', value: 5 }];
+
       store.commit('HYDRATE', { counters });
-      
+
       expect(store.state.counters).toEqual(counters);
     });
 
@@ -304,11 +308,11 @@ describe('Vuex Store', () => {
       const prefs: Partial<Prefs> = {
         sortBy: 'value',
         sortDir: 'desc',
-        search: 'test'
+        search: 'test',
       };
-      
+
       store.commit('HYDRATE', { prefs });
-      
+
       expect(store.state.prefs.sortBy).toBe('value');
       expect(store.state.prefs.sortDir).toBe('desc');
       expect(store.state.prefs.search).toBe('test');
@@ -321,14 +325,14 @@ describe('Vuex Store', () => {
       store.commit('ADD_COUNTER', 'Alpha');
       store.commit('ADD_COUNTER', 'Beta');
       store.commit('ADD_COUNTER', 'Gamma');
-      
+
       // Set different values
-      store.commit('INCREMENT', store.state.counters[0].id); // Alpha = 1
-      store.commit('INCREMENT', store.state.counters[1].id); // Beta = 1
-      store.commit('INCREMENT', store.state.counters[1].id); // Beta = 2
-      store.commit('INCREMENT', store.state.counters[2].id); // Gamma = 1
-      store.commit('INCREMENT', store.state.counters[2].id); // Gamma = 2
-      store.commit('INCREMENT', store.state.counters[2].id); // Gamma = 3
+      store.commit('INCREMENT', store?.state?.counters?.[0]?.id); // Alpha = 1
+      store.commit('INCREMENT', store?.state?.counters?.[1]?.id); // Beta = 1
+      store.commit('INCREMENT', store?.state?.counters?.[1]?.id); // Beta = 2
+      store.commit('INCREMENT', store?.state?.counters?.[2]?.id); // Gamma = 1
+      store.commit('INCREMENT', store?.state?.counters?.[2]?.id); // Gamma = 2
+      store.commit('INCREMENT', store?.state?.counters?.[2]?.id); // Gamma = 3
     });
 
     describe('totalSum', () => {
@@ -344,56 +348,56 @@ describe('Vuex Store', () => {
 
     describe('viewList', () => {
       it('should sort by name ascending by default', () => {
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.name)).toEqual(['Alpha', 'Beta', 'Gamma']);
       });
 
       it('should sort by name descending', () => {
         store.commit('SET_PREFS', { sortBy: 'name', sortDir: 'desc' });
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.name)).toEqual(['Gamma', 'Beta', 'Alpha']);
       });
 
       it('should sort by value ascending', () => {
         store.commit('SET_PREFS', { sortBy: 'value', sortDir: 'asc' });
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.value)).toEqual([1, 2, 3]);
       });
 
       it('should sort by value descending', () => {
         store.commit('SET_PREFS', { sortBy: 'value', sortDir: 'desc' });
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.value)).toEqual([3, 2, 1]);
       });
 
       it('should filter by greater than', () => {
         store.commit('SET_PREFS', { filterMode: 'gt', filterX: 1 });
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.name)).toEqual(['Beta', 'Gamma']);
       });
 
       it('should filter by less than', () => {
         store.commit('SET_PREFS', { filterMode: 'lt', filterX: 3 });
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.name)).toEqual(['Alpha', 'Beta']);
       });
 
       it('should search by name (case insensitive)', () => {
         store.commit('SET_PREFS', { search: 'bet' });
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.name)).toEqual(['Beta']);
       });
 
       it('should combine search and filter', () => {
         store.commit('SET_PREFS', { search: 'a', filterMode: 'gt', filterX: 1 });
-        const view = store.getters.viewList;
+        const view = store?.getters?.viewList;
         expect(view.map((c: Counter) => c.name)).toEqual(['Beta', 'Gamma']); // Beta and Gamma have 'a' and value > 1
       });
     });
 
     describe('canAdd', () => {
       it('should return true when under limit', () => {
-        expect(store.getters.canAdd).toBe(true);
+        expect(store?.getters?.canAdd).toBe(true);
       });
 
       it('should return false when at limit', () => {
@@ -401,9 +405,9 @@ describe('Vuex Store', () => {
         for (let i = 4; i <= 20; i++) {
           store.commit('ADD_COUNTER', `Counter ${i}`);
         }
-        
-        expect(store.state.counters).toHaveLength(20);
-        expect(store.getters.canAdd).toBe(false);
+
+        expect(store?.state?.counters).toHaveLength(20);
+        expect(store?.getters?.canAdd).toBe(false);
       });
     });
   });
@@ -411,40 +415,40 @@ describe('Vuex Store', () => {
   describe('Actions', () => {
     it('should set sort preferences', async () => {
       await store.dispatch('setSort', { by: 'value', dir: 'desc' });
-      
-      expect(store.state.prefs.sortBy).toBe('value');
-      expect(store.state.prefs.sortDir).toBe('desc');
+
+      expect(store?.state?.prefs?.sortBy).toBe('value');
+      expect(store?.state?.prefs?.sortDir).toBe('desc');
     });
 
     it('should set filter preferences', async () => {
       await store.dispatch('setFilter', { mode: 'gt', x: 5 });
-      
-      expect(store.state.prefs.filterMode).toBe('gt');
-      expect(store.state.prefs.filterX).toBe(5);
+
+      expect(store?.state?.prefs?.filterMode).toBe('gt');
+      expect(store?.state?.prefs?.filterX).toBe(5);
     });
 
     it('should clear filter preferences', async () => {
       // Set some filters first
       store.commit('SET_PREFS', { filterMode: 'gt', filterX: 5, search: 'test' });
-      
+
       await store.dispatch('clearFilters');
-      
-      expect(store.state.prefs.filterMode).toBe('none');
-      expect(store.state.prefs.filterX).toBe(null);
-      expect(store.state.prefs.search).toBe('');
+
+      expect(store?.state?.prefs?.filterMode).toBe('none');
+      expect(store?.state?.prefs?.filterX).toBe(null);
+      expect(store?.state?.prefs?.search).toBe('');
     });
 
     it('should set search query', async () => {
       await store.dispatch('setSearch', 'test query');
-      
-      expect(store.state.prefs.search).toBe('test query');
+
+      expect(store?.state?.prefs?.search).toBe('test query');
     });
 
     it('should handle filter mode none correctly', async () => {
       await store.dispatch('setFilter', { mode: 'none' });
-      
-      expect(store.state.prefs.filterMode).toBe('none');
-      expect(store.state.prefs.filterX).toBe(null);
+
+      expect(store?.state?.prefs?.filterMode).toBe('none');
+      expect(store?.state?.prefs?.filterX).toBe(null);
     });
   });
 });

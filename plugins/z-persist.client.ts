@@ -1,4 +1,5 @@
 import { defineNuxtPlugin } from 'nuxt/app';
+import * as Vuex from 'vuex';
 import type { RootState, Prefs, StoreType } from '../types/counter';
 import { safeLocal, safeSession, throttle } from '../utils/storage';
 
@@ -21,7 +22,6 @@ export default defineNuxtPlugin({
     const store = nuxtApp.$vuexStore as StoreType;
     
     if (!store) {
-      console.error('Store not available in persist plugin');
       return;
     }
 
@@ -34,7 +34,7 @@ export default defineNuxtPlugin({
 
     // Subscribe to store changes and persist them
     store.subscribe(
-      throttle((mutation: any, state: RootState) => {
+      throttle((mutation: Vuex.MutationPayload, state: RootState) => {
         safeLocal.setJSON(LS_KEY, state.counters);
         safeSession.setJSON(SS_KEY, state.prefs);
       }, 250)

@@ -30,6 +30,10 @@ describe('Storage Utils', () => {
       localStorage: mockLocalStorage,
       sessionStorage: mockSessionStorage,
     });
+    
+    // Also stub the global storage objects directly
+    vi.stubGlobal('localStorage', mockLocalStorage);
+    vi.stubGlobal('sessionStorage', mockSessionStorage);
   });
 
   afterEach(() => {

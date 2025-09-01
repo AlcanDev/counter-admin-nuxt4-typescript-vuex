@@ -11,7 +11,9 @@ export const safeLocal = {
   setJSON(k: string, v: unknown) {
     try {
       if (isClient()) localStorage.setItem(k, JSON.stringify(v));
-    } catch {}
+    } catch {
+      // Silently handle storage errors
+    }
   },
 };
 
@@ -26,14 +28,16 @@ export const safeSession = {
   setJSON(k: string, v: unknown) {
     try {
       if (isClient()) sessionStorage.setItem(k, JSON.stringify(v));
-    } catch {}
+    } catch {
+      // Silently handle storage errors
+    }
   },
 };
 
-export const throttle = (fn: Function, ms = 200) => {
+export const throttle = <T extends unknown[]>(fn: (..._args: T) => void, ms = 200) => {
   let t = 0,
-    lastArgs: any;
-  return (...args: any[]) => {
+    lastArgs: T;
+  return (...args: T) => {
     const now = Date.now();
     lastArgs = args;
     if (now - t >= ms) {

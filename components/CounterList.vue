@@ -1,10 +1,10 @@
 <script setup lang="ts">
 defineProps<{ items: Array<{ id: string; name: string; value: number }> }>();
 const emit = defineEmits<{
-  (e: 'inc', id: string): void;
-  (e: 'dec', id: string): void;
-  (e: 'remove', id: string): void;
-  (e: 'rename', p: { id: string; name: string }): void;
+  inc: [id: string];
+  dec: [id: string];
+  remove: [id: string];
+  rename: [p: { id: string; name: string }];
 }>();
 </script>
 

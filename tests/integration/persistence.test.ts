@@ -15,9 +15,9 @@ const mockStorage = (storage: Map<string, string>) => ({
 });
 
 describe('Persistence Integration', () => {
-  let store: any;
-  let mockLocal: any;
-  let mockSession: any;
+  let store: Vuex.Store<RootState>;
+  let mockLocal: ReturnType<typeof mockStorage>;
+  let mockSession: ReturnType<typeof mockStorage>;
 
   const LS_KEY = 'counters:v1';
   const SS_KEY = 'prefs:v1';
@@ -31,23 +31,24 @@ describe('Persistence Integration', () => {
   };
 
   beforeEach(() => {
+    vi.clearAllMocks();
     mockLocalStorage.clear();
     mockSessionStorage.clear();
-    
+
     mockLocal = mockStorage(mockLocalStorage);
     mockSession = mockStorage(mockSessionStorage);
 
-    Object.defineProperty(global, 'window', {
-      value: {
-        localStorage: mockLocal,
-        sessionStorage: mockSession,
-      },
-      writable: true
+    // Stub global storage objects
+    vi.stubGlobal('localStorage', mockLocal);
+    vi.stubGlobal('sessionStorage', mockSession);
+    vi.stubGlobal('window', {
+      localStorage: mockLocal,
+      sessionStorage: mockSession,
     });
 
     // Create store similar to the plugin
     store = Vuex.createStore<RootState>({
-      state: () => ({ counters: [], prefs: defaultPrefs }),
+      state: () => ({ counters: [], prefs: { ...defaultPrefs } }),
       getters: {
         totalSum: (s: RootState) => s.counters.reduce((a, c) => a + c.value, 0),
         viewList: (s: RootState) => {
@@ -105,62 +106,33 @@ describe('Persistence Integration', () => {
 
   describe('Storage Persistence', () => {
     it('should persist counters to localStorage', () => {
-      const mockSetItem = vi.fn();
-      vi.stubGlobal('window', {
-        localStorage: {
-          getItem: vi.fn(),
-          setItem: mockSetItem,
-        },
-      });
-      
       store.commit('ADD_COUNTER', 'Test Counter');
-      
+
       // Manually trigger persistence
       safeLocal.setJSON(LS_KEY, store.state.counters);
-      
-      expect(mockSetItem).toHaveBeenCalledWith(
-        LS_KEY,
-        JSON.stringify(store.state.counters)
-      );
+
+      expect(mockLocal.setItem).toHaveBeenCalledWith(LS_KEY, JSON.stringify(store.state.counters));
     });
 
     it('should persist preferences to sessionStorage', () => {
-      const mockSetItem = vi.fn();
-      vi.stubGlobal('window', {
-        sessionStorage: {
-          getItem: vi.fn(),
-          setItem: mockSetItem,
-        },
-      });
-      
       store.commit('SET_PREFS', { sortBy: 'value', sortDir: 'desc' });
-      
+
       // Manually trigger persistence
       safeSession.setJSON(SS_KEY, store.state.prefs);
-      
-      expect(mockSetItem).toHaveBeenCalledWith(
-        SS_KEY,
-        JSON.stringify(store.state.prefs)
-      );
+
+      expect(mockSession.setItem).toHaveBeenCalledWith(SS_KEY, JSON.stringify(store.state.prefs));
     });
 
     it('should hydrate from localStorage on startup', () => {
-      const persistedCounters = [
-        { id: '1', name: 'Persisted Counter', value: 5 }
-      ];
-      
-      // Mock localStorage directly for this test
-      vi.stubGlobal('window', {
-        localStorage: {
-          getItem: vi.fn().mockReturnValue(JSON.stringify(persistedCounters)),
-          setItem: vi.fn(),
-        },
-      });
-      
+      const persistedCounters = [{ id: '1', name: 'Persisted Counter', value: 5 }];
+
+      // Set up mock data
+      mockLocalStorage.set(LS_KEY, JSON.stringify(persistedCounters));
+
       // Simulate hydration
       const loadedCounters = safeLocal.getJSON(LS_KEY, []);
       store.commit('HYDRATE', { counters: loadedCounters });
-      
+
       expect(store.state.counters).toEqual(persistedCounters);
     });
 
@@ -170,37 +142,32 @@ describe('Persistence Integration', () => {
         sortDir: 'desc' as const,
         filterMode: 'gt' as const,
         filterX: 5,
-        search: 'test'
+        search: 'test',
       };
-      
-      // Mock sessionStorage directly for this test
-      vi.stubGlobal('window', {
-        sessionStorage: {
-          getItem: vi.fn().mockReturnValue(JSON.stringify(persistedPrefs)),
-          setItem: vi.fn(),
-        },
-      });
-      
+
+      // Set up mock data
+      mockSessionStorage.set(SS_KEY, JSON.stringify(persistedPrefs));
+
       // Simulate hydration
-      const loadedPrefs = safeSession.getJSON(SS_KEY, {});
+      const loadedPrefs = safeSession.getJSON(SS_KEY, defaultPrefs);
       store.commit('HYDRATE', { prefs: loadedPrefs });
-      
+
       expect(store.state.prefs).toEqual(persistedPrefs);
     });
 
     it('should handle corrupted localStorage data gracefully', () => {
       mockLocalStorage.set(LS_KEY, 'invalid json');
-      
+
       const loadedCounters = safeLocal.getJSON(LS_KEY, []);
-      
+
       expect(loadedCounters).toEqual([]);
     });
 
     it('should handle corrupted sessionStorage data gracefully', () => {
       mockSessionStorage.set(SS_KEY, 'invalid json');
-      
+
       const loadedPrefs = safeSession.getJSON(SS_KEY, defaultPrefs);
-      
+
       expect(loadedPrefs).toEqual(defaultPrefs);
     });
   });
@@ -210,17 +177,17 @@ describe('Persistence Integration', () => {
       // Add counters and modify values
       store.commit('ADD_COUNTER', 'Counter 1');
       store.commit('ADD_COUNTER', 'Counter 2');
-      
-      const counter1Id = store.state.counters[0].id;
-      const counter2Id = store.state.counters[1].id;
-      
+
+      const counter1Id = store?.state?.counters?.[0]?.id;
+      const counter2Id = store?.state?.counters?.[1]?.id;
+
       store.commit('INCREMENT', counter1Id);
       store.commit('INCREMENT', counter1Id);
       store.commit('INCREMENT', counter2Id);
-      
+
       // Save to storage
       safeLocal.setJSON(LS_KEY, store.state.counters);
-      
+
       // Create new store and hydrate
       const newStore = Vuex.createStore<RootState>({
         state: () => ({ counters: [], prefs: defaultPrefs }),
@@ -230,15 +197,15 @@ describe('Persistence Integration', () => {
           },
         },
       });
-      
+
       const loadedCounters = safeLocal.getJSON(LS_KEY, []);
       newStore.commit('HYDRATE', { counters: loadedCounters });
-      
+
       expect(newStore.state.counters).toHaveLength(2);
-      expect(newStore.state.counters[0]?.name).toBe('Counter 1');
-      expect(newStore.state.counters[0]?.value).toBe(2);
-      expect(newStore.state.counters[1]?.name).toBe('Counter 2');
-      expect(newStore.state.counters[1]?.value).toBe(1);
+      expect(newStore.state.counters[0]!.name).toBe('Counter 1');
+      expect(newStore.state.counters[0]!.value).toBe(2);
+      expect(newStore.state.counters[1]!.name).toBe('Counter 2');
+      expect(newStore.state.counters[1]!.value).toBe(1);
     });
 
     it('should complete full save/load cycle for preferences', () => {
@@ -248,12 +215,12 @@ describe('Persistence Integration', () => {
         sortDir: 'desc',
         filterMode: 'gt',
         filterX: 3,
-        search: 'test query'
+        search: 'test query',
       });
-      
+
       // Save to storage
       safeSession.setJSON(SS_KEY, store.state.prefs);
-      
+
       // Create new store and hydrate
       const newStore = Vuex.createStore<RootState>({
         state: () => ({ counters: [], prefs: defaultPrefs }),
@@ -263,10 +230,10 @@ describe('Persistence Integration', () => {
           },
         },
       });
-      
+
       const loadedPrefs = safeSession.getJSON(SS_KEY, defaultPrefs);
       newStore.commit('HYDRATE', { prefs: loadedPrefs });
-      
+
       expect(newStore.state.prefs.sortBy).toBe('value');
       expect(newStore.state.prefs.sortDir).toBe('desc');
       expect(newStore.state.prefs.filterMode).toBe('gt');
@@ -290,13 +257,17 @@ describe('Persistence Integration', () => {
         safeSession.setJSON(SS_KEY, state.prefs);
       }, 250);
 
+      // Clear any previous calls
+      mockLocal.setItem.mockClear();
+      mockSession.setItem.mockClear();
+
       // Simulate rapid mutations
       store.commit('ADD_COUNTER', 'Counter 1');
       throttledSave(store.state);
-      
+
       store.commit('ADD_COUNTER', 'Counter 2');
       throttledSave(store.state);
-      
+
       store.commit('ADD_COUNTER', 'Counter 3');
       throttledSave(store.state);
 
@@ -306,7 +277,7 @@ describe('Persistence Integration', () => {
 
       // After throttle period, next call should save again
       vi.advanceTimersByTime(250);
-      
+
       store.commit('ADD_COUNTER', 'Counter 4');
       throttledSave(store.state);
 

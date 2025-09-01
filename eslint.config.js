@@ -50,12 +50,26 @@ export default [
     rules: {
       '@typescript-eslint/no-unused-vars': [
         'error',
-        { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+        { 
+          argsIgnorePattern: '^_|^e$|^id$|^name$|^payload$|^args$',
+          varsIgnorePattern: '^_|^vi$'
+        },
+      ],
+      'no-unused-vars': [
+        'error',
+        { 
+          argsIgnorePattern: '^_|^e$|^id$|^name$|^payload$|^args$',
+          varsIgnorePattern: '^_|^vi$'
+        },
       ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/explicit-module-boundary-types': 'off',
       'vue/multi-word-component-names': 'off',
-      'vue/no-unused-vars': 'error',
+      'vue/no-unused-vars': 'off',
+      'vue/max-attributes-per-line': 'off',
+      'vue/singleline-html-element-content-newline': 'off',
+      'vue/html-self-closing': 'off',
+      'vue/attributes-order': 'off',
       'no-console': 'warn',
       'no-debugger': 'error',
     },

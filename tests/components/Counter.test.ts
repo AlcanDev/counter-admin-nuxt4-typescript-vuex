@@ -25,7 +25,9 @@ describe('Counter Component', () => {
       props: defaultProps,
     });
 
-    await wrapper.find('button:contains("+1")').trigger('click');
+    const buttons = wrapper.findAll('button');
+    const incButton = buttons.find((btn) => btn.text().includes('+'));
+    await incButton!.trigger('click');
 
     expect(wrapper.emitted('inc')).toBeTruthy();
     expect(wrapper.emitted('inc')?.[0]).toEqual(['test-id']);
@@ -36,7 +38,9 @@ describe('Counter Component', () => {
       props: defaultProps,
     });
 
-    await wrapper.find('button:contains("-1")').trigger('click');
+    const buttons = wrapper.findAll('button');
+    const decButton = buttons.find((btn) => btn.text().includes('−'));
+    await decButton!.trigger('click');
 
     expect(wrapper.emitted('dec')).toBeTruthy();
     expect(wrapper.emitted('dec')?.[0]).toEqual(['test-id']);
@@ -47,7 +51,9 @@ describe('Counter Component', () => {
       props: defaultProps,
     });
 
-    await wrapper.find('button:contains("Eliminar")').trigger('click');
+    const buttons = wrapper.findAll('button');
+    const removeButton = buttons.find((btn) => btn.attributes('title') === 'Eliminar');
+    await removeButton!.trigger('click');
 
     expect(wrapper.emitted('remove')).toBeTruthy();
     expect(wrapper.emitted('remove')?.[0]).toEqual(['test-id']);
@@ -61,8 +67,9 @@ describe('Counter Component', () => {
       },
     });
 
-    const incButton = wrapper.find('button:contains("+1")');
-    expect(incButton.attributes('disabled')).toBeDefined();
+    const buttons = wrapper.findAll('button');
+    const incButton = buttons.find((btn) => btn.text().includes('+'));
+    expect(incButton!.attributes('disabled')).toBeDefined();
   });
 
   it('should disable -1 button when canDec is false', () => {
@@ -73,8 +80,9 @@ describe('Counter Component', () => {
       },
     });
 
-    const decButton = wrapper.find('button:contains("-1")');
-    expect(decButton.attributes('disabled')).toBeDefined();
+    const buttons = wrapper.findAll('button');
+    const decButton = buttons.find((btn) => btn.text().includes('−'));
+    expect(decButton!.attributes('disabled')).toBeDefined();
   });
 
   describe('Rename functionality', () => {
@@ -83,10 +91,14 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       expect(wrapper.find('input').exists()).toBe(true);
-      expect(wrapper.find('button:contains("Guardar")').exists()).toBe(true);
+      const updatedButtons = wrapper.findAll('button');
+      const saveButton = updatedButtons.find((btn) => btn.text().includes('Guardar'));
+      expect(saveButton!.exists()).toBe(true);
     });
 
     it('should exit edit mode and emit rename when Guardar is clicked with valid name', async () => {
@@ -95,20 +107,26 @@ describe('Counter Component', () => {
       });
 
       // Enter edit mode
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       // Change the input value
       const input = wrapper.find('input');
       await input.setValue('New Counter Name');
 
       // Save
-      await wrapper.find('button:contains("Guardar")').trigger('click');
+      const updatedButtons = wrapper.findAll('button');
+      const saveButton = updatedButtons.find((btn) => btn.text().includes('Guardar'));
+      await saveButton!.trigger('click');
 
       expect(wrapper.emitted('rename')).toBeTruthy();
-      expect(wrapper.emitted('rename')?.[0]).toEqual([{
-        id: 'test-id',
-        name: 'New Counter Name'
-      }]);
+      expect(wrapper.emitted('rename')?.[0]).toEqual([
+        {
+          id: 'test-id',
+          name: 'New Counter Name',
+        },
+      ]);
 
       // Should exit edit mode
       expect(wrapper.find('input').exists()).toBe(false);
@@ -119,17 +137,23 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       const input = wrapper.find('input');
       await input.setValue('  Trimmed Name  ');
 
-      await wrapper.find('button:contains("Guardar")').trigger('click');
+      const updatedButtons = wrapper.findAll('button');
+      const saveButton = updatedButtons.find((btn) => btn.text().includes('Guardar'));
+      await saveButton!.trigger('click');
 
-      expect(wrapper.emitted('rename')?.[0]).toEqual([{
-        id: 'test-id',
-        name: 'Trimmed Name'
-      }]);
+      expect(wrapper.emitted('rename')?.[0]).toEqual([
+        {
+          id: 'test-id',
+          name: 'Trimmed Name',
+        },
+      ]);
     });
 
     it('should not emit rename for empty names', async () => {
@@ -137,12 +161,16 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       const input = wrapper.find('input');
       await input.setValue('   ');
 
-      await wrapper.find('button:contains("Guardar")').trigger('click');
+      const updatedButtons = wrapper.findAll('button');
+      const saveButton = updatedButtons.find((btn) => btn.text().includes('Guardar'));
+      await saveButton!.trigger('click');
 
       expect(wrapper.emitted('rename')).toBeFalsy();
     });
@@ -152,12 +180,16 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       const input = wrapper.find('input');
       await input.setValue('This name is way too long for the counter limit');
 
-      await wrapper.find('button:contains("Guardar")').trigger('click');
+      const updatedButtons = wrapper.findAll('button');
+      const saveButton = updatedButtons.find((btn) => btn.text().includes('Guardar'));
+      await saveButton!.trigger('click');
 
       expect(wrapper.emitted('rename')).toBeFalsy();
     });
@@ -167,7 +199,9 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       const input = wrapper.find('input');
       await input.setValue('Changed Name');
@@ -183,17 +217,21 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       const input = wrapper.find('input');
       await input.setValue('Enter Save');
       await input.trigger('keydown.enter');
 
       expect(wrapper.emitted('rename')).toBeTruthy();
-      expect(wrapper.emitted('rename')?.[0]).toEqual([{
-        id: 'test-id',
-        name: 'Enter Save'
-      }]);
+      expect(wrapper.emitted('rename')?.[0]).toEqual([
+        {
+          id: 'test-id',
+          name: 'Enter Save',
+        },
+      ]);
     });
 
     it('should respect maxlength attribute on input', async () => {
@@ -201,34 +239,35 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       const input = wrapper.find('input');
       expect(input.attributes('maxlength')).toBe('20');
     });
 
     it('should focus input when entering edit mode', async () => {
-      // Mock requestAnimationFrame and getElementById
-      const mockFocus = vi.fn();
-      const mockGetElementById = vi.fn().mockReturnValue({
-        focus: mockFocus
-      });
-      
-      vi.stubGlobal('requestAnimationFrame', (cb: Function) => cb());
-      vi.stubGlobal('document', {
-        getElementById: mockGetElementById
-      });
+      const host = document.createElement('div');
+      document.body.appendChild(host);
 
       const wrapper = mount(Counter, {
+        attachTo: host,
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const renameButton = wrapper
+        .findAll('button')
+        .find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
+      await wrapper.vm.$nextTick();
 
-      expect(mockGetElementById).toHaveBeenCalledWith('edit-test-id');
-      expect(mockFocus).toHaveBeenCalled();
+      const input = wrapper.find('input');
+      expect(input.exists()).toBe(true);
+      expect(document.activeElement).toBe(input.element);
 
-      vi.unstubAllGlobals();
+      wrapper.unmount();
+      host.remove();
     });
   });
 
@@ -238,8 +277,9 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      const removeButton = wrapper.find('button:contains("Eliminar")');
-      expect(removeButton.attributes('title')).toBe('Eliminar');
+      const buttons = wrapper.findAll('button');
+      const removeButton = buttons.find((btn) => btn.attributes('title') === 'Eliminar');
+      expect(removeButton!.attributes('title')).toBe('Eliminar');
     });
 
     it('should have proper input id in edit mode', async () => {
@@ -247,7 +287,9 @@ describe('Counter Component', () => {
         props: defaultProps,
       });
 
-      await wrapper.find('button:contains("Renombrar")').trigger('click');
+      const buttons = wrapper.findAll('button');
+      const renameButton = buttons.find((btn) => btn.attributes('title') === 'Renombrar');
+      await renameButton!.trigger('click');
 
       const input = wrapper.find('input');
       expect(input.attributes('id')).toBe('edit-test-id');

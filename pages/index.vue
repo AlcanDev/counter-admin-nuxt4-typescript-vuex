@@ -67,7 +67,7 @@ function importJson() {
           }));
 
         store.commit('HYDRATE', { counters: clean }); // rehidrata solo counters
-      } catch (e) {
+      } catch {
         alert('No se pudo importar el JSON.');
       } finally {
         input.remove();
@@ -106,13 +106,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
     </template>
 
     <div class="stack">
-      <div
-        class="row"
-        style="gap: var(--s6); align-items: flex-start; flex-wrap: wrap"
-      >
+      <div class="controls-layout">
         <SortCounters
-          @change:sortBy="(v) => store.dispatch('setSort', { by: v, dir: prefs.sortDir })"
-          @change:sortDir="(v) => store.dispatch('setSort', { by: prefs.sortBy, dir: v })"
+          @change-sort-by="(v) => v === 'none' ? store.dispatch('disableSorting') : store.dispatch('setSort', { by: v, dir: prefs.sortDir })"
+          @change-sort-dir="(v) => store.dispatch('setSort', { by: prefs.sortBy, dir: v })"
         />
         <FilterCounters
           @change:filter="(p) => store.dispatch('setFilter', p)"
@@ -121,19 +118,9 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
         />
       </div>
 
-      <div
-        v-if="view.length === 0"
-        class="card section"
-        style="text-align: center"
-      >
-        <p style="margin: 0 0 0.5rem">
-          No hay contadores aún.
-        </p>
-        <button
-          class="btn btn-primary"
-          :disabled="!canAdd"
-          @click="showModal = true"
-        >
+      <div v-if="view.length === 0" class="card section" style="text-align: center">
+        <p style="margin: 0 0 0.5rem">No hay contadores aún.</p>
+        <button class="btn btn-primary" :disabled="!canAdd" @click="showModal = true">
           Crear tu primer contador
         </button>
       </div>
@@ -152,10 +139,29 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey));
       <CounterSum :total="total" />
     </template>
 
-    <AddCounterModal
-      v-if="showModal"
-      @confirm="onConfirmAdd"
-      @cancel="showModal = false"
-    />
+    <AddCounterModal v-if="showModal" @confirm="onConfirmAdd" @cancel="showModal = false" />
   </NuxtLayout>
 </template>
+
+<style scoped>
+.controls-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: var(--s6);
+  align-items: start;
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .controls-layout {
+    grid-template-columns: 1fr;
+    gap: var(--s4);
+  }
+}
+
+@media (max-width: 480px) {
+  .controls-layout {
+    gap: var(--s3);
+  }
+}
+</style>
