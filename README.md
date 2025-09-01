@@ -198,22 +198,9 @@ npm run test -- --coverage  # Con reporte de cobertura
 
 ### Plataformas Soportadas
 
-- ✅ **Vercel** (Recomendado)
+- ✅ **Vercel**
 - ✅ **Netlify**
 - ✅ **Servidor Node.js**
-
-### Configuración para Vercel
-
-```bash
-# Build Command
-npm run build
-
-# Output Directory
-.output
-
-# Install Command
-npm install
-```
 
 ### Variables de Entorno
 
