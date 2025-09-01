@@ -7,7 +7,7 @@ _Captura principal de la aplicación mostrando la interfaz de gestión de contad
 
 ## 🚀 Demo en Vivo
 
-🔗 **[Ver Demo](https://counter-admin-nuxt4.vercel.app)** _(Próximamente)_
+🔗 **[Ver Demo](https://counter-admin-nuxt4-typescript-vuex-5i1ctku5w.vercel.app/)**
 
 ## ✨ Características Principales
 
